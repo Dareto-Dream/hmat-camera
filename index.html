@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Holomat Finger Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: #0f0; }
+        #output { white-space: pre-wrap; font-size: 18px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>Holomat Finger Tracker</h1>
+<div id="output">Connecting...</div>
+
+<script>
+    const SERVER_URL = 'http://YOUR_PI_ZERO_IP:5000/touches'; // Replace with actual Pi IP
+
+    async function pollServer() {
+        try {
+            const response = await fetch(SERVER_URL);
+            const data = await response.json();
+            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+            document.getElementById('output').textContent = 'Error connecting to server.';
+            console.error('Poll error:', error);
+        }
+    }
+
+    // Constant polling every 100ms
+    setInterval(pollServer, 100);
+</script>
+
+</body>
+</html>

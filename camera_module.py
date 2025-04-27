@@ -22,11 +22,18 @@ camera = cv2.VideoCapture(0)
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
-# Finger detection function
+# Finger detection function (Detects Black Gloves)
 def detect_fingers(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY_INV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # Define HSV range for black
+    lower_black = (0, 0, 0)
+    upper_black = (180, 255, 80)  # Tune upper value if needed
+
+    mask = cv2.inRange(hsv, lower_black, upper_black)
+
+    blurred = cv2.GaussianBlur(mask, (5, 5), 0)
+    _, thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)
 
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     fingers = []
@@ -38,6 +45,8 @@ def detect_fingers(frame):
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
                 fingers.append({"type": "finger", "x": cx, "y": cy})
+
+    return fingers
 
     return fingers
 
