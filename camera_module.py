@@ -50,10 +50,10 @@ def detect_fingers(frame):
             ext_bottom = tuple(largest_contour[largest_contour[:, :, 1].argmax()][0])
 
             # Create "finger" points from extremes
-            fingers.append({"type": "finger", "x": ext_left[0], "y": ext_left[1]})
-            fingers.append({"type": "finger", "x": ext_right[0], "y": ext_right[1]})
-            fingers.append({"type": "finger", "x": ext_top[0], "y": ext_top[1]})
-            fingers.append({"type": "finger", "x": ext_bottom[0], "y": ext_bottom[1]})
+            fingers.append({"type": "finger", "x": int(ext_left[0]), "y": int(ext_left[1])})
+            fingers.append({"type": "finger", "x": int(ext_right[0]), "y": int(ext_right[1])})
+            fingers.append({"type": "finger", "x": int(ext_top[0]), "y": int(ext_top[1])})
+            fingers.append({"type": "finger", "x": int(ext_bottom[0]), "y": int(ext_bottom[1])})
 
     return fingers
 
