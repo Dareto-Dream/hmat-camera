@@ -26,9 +26,9 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 def detect_fingers(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # Lighter black: allow a bit higher brightness
+    # Updated black detection — more strict
     lower_black = (0, 0, 0)
-    upper_black = (180, 255, 100)  # Value threshold relaxed to 100
+    upper_black = (180, 80, 50)  # Very dark only, not medium gray!
 
     mask = cv2.inRange(hsv, lower_black, upper_black)
     blurred = cv2.GaussianBlur(mask, (5, 5), 0)
@@ -38,22 +38,24 @@ def detect_fingers(frame):
     fingers = []
 
     if contours:
-        # Only use the largest contour
         largest_contour = max(contours, key=cv2.contourArea)
+        area = cv2.contourArea(largest_contour)
 
-        # Optional: Filter by minimum area to avoid random noise
-        if cv2.contourArea(largest_contour) > 1500:
+        # Area must be BIG enough to trust it's a real object
+        if area > 5000:  # (boosted threshold from 3000 to 5000)
             # Find extreme points
             ext_left = tuple(largest_contour[largest_contour[:, :, 0].argmin()][0])
             ext_right = tuple(largest_contour[largest_contour[:, :, 0].argmax()][0])
             ext_top = tuple(largest_contour[largest_contour[:, :, 1].argmin()][0])
             ext_bottom = tuple(largest_contour[largest_contour[:, :, 1].argmax()][0])
 
-            # Create "finger" points from extremes
             fingers.append({"type": "finger", "x": int(ext_left[0]), "y": int(ext_left[1])})
             fingers.append({"type": "finger", "x": int(ext_right[0]), "y": int(ext_right[1])})
             fingers.append({"type": "finger", "x": int(ext_top[0]), "y": int(ext_top[1])})
             fingers.append({"type": "finger", "x": int(ext_bottom[0]), "y": int(ext_bottom[1])})
+        else:
+            # Ignore tiny blobs (like corners, noise)
+            fingers = []
 
     return fingers
 
